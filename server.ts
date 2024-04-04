@@ -17,7 +17,7 @@ import { App } from './src/app'
  *      DB_USER=root
  *      DB_PASS=mypass
  *
- *  The fastest way is to create a copy of the .env.example file.
+ *  The fastest way is to create a copy of the .env file.
  */
 require('dotenv').config()
 

@@ -3,9 +3,9 @@ import { ObjectId } from 'mongodb'
 
 export interface IFileService extends IService<any> {
 
-    uploadFile(file: any): Promise<ObjectId>
+    uploadFile(file: any, directory_id: string): Promise<ObjectId>
 
     downloadFile(id: string): Promise<string>
 
-    findByName(fileName: string): Promise<any>
+    findByDirectory(directory: string): Promise<any>
 }

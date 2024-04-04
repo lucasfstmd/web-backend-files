@@ -7,6 +7,7 @@ import swaggerUi from 'swagger-ui-express'
 import qs from 'query-strings-parser'
 import cors from 'cors'
 import express, { Application, NextFunction, Request, Response } from 'express'
+import fileUpload from 'express-fileupload'
 import { inject, injectable } from 'inversify'
 import { InversifyExpressServer } from 'inversify-express-utils'
 import { ApiException } from './ui/exception/api.exception'
@@ -98,6 +99,7 @@ export class App {
             // helps you secure your Express apps by setting various HTTP headers.
             // {@link https://www.npmjs.com/package/helmet}
             app.use(helmet())
+            app.use(fileUpload())
 
             // create application/json parser
             // {@link https://www.npmjs.com/package/body-parser}

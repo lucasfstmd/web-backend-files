@@ -7,7 +7,7 @@ export interface IDBOptions {
     tlsCAFile: any
     tlsCertificateKeyFile: any
     tlsCertificateFile: any
-    useNewUrlParser: boolean
+    useNewUrlParser: boolean,
     useUnifiedTopology: boolean
 }
 

@@ -3,12 +3,11 @@ import { Identifier } from '../../di/identifiers'
 import { IFileService } from '../../application/port/file.service.interface'
 import { controller, httpGet, httpPost, request, response } from 'inversify-express-utils'
 import { Request, Response } from 'express'
-import multer from 'multer'
+// import multer from 'multer'
 import HttpStatus from 'http-status-codes'
-import fs, { unlinkSync } from 'fs'
+import { unlinkSync } from 'fs'
 import { ApiExceptionManager } from '../exception/api.exception.manager'
 import { Query } from '../../infrastructure/repository/query/query'
-import * as path from 'path'
 
 @controller('/v1/files')
 export class FileController {
@@ -24,57 +23,62 @@ export class FileController {
     ) {
     }
 
-    @httpPost('/upload', multer().single('file'))
+    @httpPost('/upload/:directory_id')
     public async uploadFile(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
+            const { directory_id } = req.params
             if (!req.files || Object.keys(req.files).length === 0) {
                 return res.status(400).send('Nenhum arquivo recebido')
             }
             const filesName = Object.keys(req.files)
-            const directory = path.join(__dirname, '..', '..', 'temp-files')
-            if (!fs.existsSync(directory)) {
-                fs.mkdirSync(directory)
-            }
 
-            const stringResult: string[] = []
+            const uploadPromises: Promise<any>[] = []
 
             const files = req.files
-            filesName.map(async (arq) => {
+            filesName.forEach((arq) => {
                 const objFiles = files[arq]
-                try {
-                    const idFile = await this._service.uploadFile(objFiles)
-                    stringResult.push(idFile)
-                } catch (err) {
-                    return FileController.handlerError(res, err)
-                }
+                const uploadPromise = this._service.uploadFile(objFiles, directory_id)
+                    .then((result) => {
+                        return `${result}`
+                    })
+                    .catch((err) => FileController.handlerError(res, err))
+                uploadPromises.push(uploadPromise)
             })
-            return res.status(HttpStatus.OK).send(stringResult)
+
+            const results = await Promise.all(uploadPromises)
+            return res.status(HttpStatus.OK).send(results)
+
         } catch (err) {
             return FileController.handlerError(res, err)
         }
     }
 
     @httpGet('/download/:file_id')
-    public async downloadFile(@request() req: Request, @response() res: Response): Promise<void | Response> {
-        try {
-            const { file_id } = req.params
-            const filePath = await this._service.downloadFile(file_id)
-
-            return res.download(filePath, () => {
-                unlinkSync(filePath)
-            })
-
-        } catch (err) {
-            return FileController.handlerError(res, err)
-        }
+    public async downloadFile(@request() req: Request, @response() res: Response): Promise<Response> {
+        return new Promise((resolve, reject) => {
+            try {
+                const { file_id } = req.params
+                this._service.downloadFile(file_id)
+                    .then((filePath) => {
+                        res.download(filePath, () => {
+                            unlinkSync(filePath)
+                            resolve(res)
+                        })
+                    })
+                    .catch((err) => {
+                        reject(err)
+                    })
+            } catch (err) {
+                reject(err)
+            }
+        })
     }
 
-    @httpGet('find/:file_name')
+    @httpGet('/find/:file_name')
     public async getByName(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const { file_name } = req.params
             const file = await this._service.findByName(file_name)
-
             return res.status(HttpStatus.OK).send(file)
         } catch (err) {
             return FileController.handlerError(res, err)
@@ -85,7 +89,7 @@ export class FileController {
     public async getAll(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const result = await this._service.getAll(new Query())
-
+            console.log(result)
             return res.status(HttpStatus.OK).send(result)
         } catch (err) {
             return FileController.handlerError(res, err)

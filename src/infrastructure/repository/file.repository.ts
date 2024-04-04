@@ -23,7 +23,7 @@ export class FileRepository implements IFileRepository {
     constructor(
         @inject(Identifier.MONGODB_CONNECTION) private readonly _connection: IConnectionDB,
     ) {
-        this._filePaths = join(__dirname, '..', '..', 'temp-files')
+        this._filePaths = 'C:/Users/PC Gamer/WebstormProjects/web-backend/temp-files'
         if (!existsSync(this._filePaths)) {
             mkdirSync(this._filePaths)
         }
@@ -35,11 +35,11 @@ export class FileRepository implements IFileRepository {
 
     private _initializeBucket(): GridFSBucket {
         return new GridFSBucket(this._connection.db as Db, {
-            bucketName: 'files'
+            bucketName: ''
         })
     }
 
-    public uploadFile(file: any): Promise<ObjectId> {
+    public uploadFile(file: any, directory_id: string): Promise<ObjectId> {
         return new Promise((resolve, reject) => {
             if (ObjectValidation.isValidObject(file)) {
                 const bucket = this._initializeBucket()
@@ -52,7 +52,8 @@ export class FileRepository implements IFileRepository {
 
                 const streamGridFS = bucket.openUploadStream(fileName, {
                     metadata: {
-                        mimetype: file.mimetype
+                        mimetype: file.mimetype,
+                        directory: new ObjectId(directory_id)
                     }
                 })
 
@@ -100,9 +101,9 @@ export class FileRepository implements IFileRepository {
         })
     }
 
-    public findByName(name: string): Promise<any> {
+    public findByDirectory(directory: string): Promise<any> {
         try {
-            const result = this._initializeBucket().find({ 'filename': name })
+            const result = this._initializeBucket().find({ 'metadata.directory': `${directory}` }).toArray()
             return Promise.resolve(result)
         } catch (err) {
             return Promise.reject(err)

@@ -21,18 +21,26 @@ export class FileService implements IFileService {
     }
 
     public downloadFile(id: string): Promise<string> {
-        try {
-            const result = this._repository.downloadFile(id)
-            return Promise.resolve(result)
-        } catch (err) {
-            this._logger.error(`Error: ${err}`)
-            return Promise.reject(err)
-        }
+        return new Promise<string>((resolve, reject) => {
+            return this._repository.downloadFile(id)
+                .then((result) => {
+                    resolve(result)
+                })
+                .catch((err) => reject(err))
+        })
     }
 
-    public findByName(fileName: string): Promise<any> {
+    public uploadFile(file: any, directory_id: string): Promise<ObjectId> {
+        return new Promise<ObjectId>((resolve, reject) => {
+            return this._repository.uploadFile(file, directory_id)
+                .then((res) => resolve(res))
+                .catch((err) => reject(err))
+        })
+    }
+
+    public findByDirectory(directory: string): Promise<any> {
         try {
-            const result = this._repository.findByName(fileName)
+            const result = this._repository.findByDirectory(directory)
             return Promise.resolve(result)
         } catch (err) {
             this._logger.error(`Error: ${err}`)
@@ -60,16 +68,6 @@ export class FileService implements IFileService {
 
     public update(item: any): Promise<any> {
         return Promise.resolve(undefined)
-    }
-
-    public uploadFile(file: any): Promise<ObjectId> {
-        try {
-            const result = this._repository.uploadFile(file)
-            return Promise.resolve(result)
-        } catch (err) {
-            this._logger.error(`Error: ${err}`)
-            return Promise.reject(err)
-        }
     }
 
     public count(query: IQuery): Promise<number> {
