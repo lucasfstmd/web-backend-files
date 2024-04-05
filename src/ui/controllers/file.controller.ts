@@ -75,7 +75,7 @@ export class FileController {
     }
 
     @httpGet('/find/:directory_id')
-    public async getByName(@request() req: Request, @response() res: Response): Promise<Response> {
+    public async getByDirectory(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const { directory_id } = req.params
             const file = await this._service.findByDirectory(directory_id)

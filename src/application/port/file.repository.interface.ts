@@ -7,5 +7,5 @@ export interface IFileRepository extends IRepository<any> {
 
     downloadFile(id: string): Promise<string>
 
-    findByDirectory(directory: string): Promise<any>
+    findByDirectory(directory: string): Promise<Array<any>>
 }

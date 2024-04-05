@@ -101,7 +101,7 @@ export class FileRepository implements IFileRepository {
         })
     }
 
-    public findByDirectory(directory: string): Promise<any> {
+    public findByDirectory(directory: string): Promise<Array<any>> {
         try {
             const result = this._initializeBucket().find({ 'metadata.directory': `${directory}` }).toArray()
             return Promise.resolve(result)

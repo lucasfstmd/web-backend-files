@@ -7,5 +7,5 @@ export interface IFileService extends IService<any> {
 
     downloadFile(id: string): Promise<string>
 
-    findByDirectory(directory: string): Promise<any>
+    findByDirectory(directory: string): Promise<Array<any>>
 }

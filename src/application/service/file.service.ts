@@ -38,7 +38,7 @@ export class FileService implements IFileService {
         })
     }
 
-    public findByDirectory(directory: string): Promise<any> {
+    public findByDirectory(directory: string): Promise<Array<any>> {
         try {
             const result = this._repository.findByDirectory(directory)
             return Promise.resolve(result)
