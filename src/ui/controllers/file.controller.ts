@@ -74,11 +74,11 @@ export class FileController {
         })
     }
 
-    @httpGet('/find/:file_name')
+    @httpGet('/find/:directory_id')
     public async getByName(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const { file_name } = req.params
-            const file = await this._service.findByName(file_name)
+            const { directory_id } = req.params
+            const file = await this._service.findByDirectory(directory_id)
             return res.status(HttpStatus.OK).send(file)
         } catch (err) {
             return FileController.handlerError(res, err)
