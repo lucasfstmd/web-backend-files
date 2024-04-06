@@ -6,9 +6,9 @@ import { ILogger } from '../../utils/custom.logger'
 import { IQuery } from '../port/query.interface'
 import { SendFile } from '../domain/model/send.file'
 import { File } from '../domain/model/file'
-// import { FileSyncEvent } from '../integration-event/event/file.sync.event'
 import { IntegrationEventRepository } from '../../infrastructure/repository/integration.event.repository'
 import { FileSyncEvent } from '../integration-event/event/file.sync.event'
+import { DeleteFiles } from '../domain/model/delete.files'
 
 
 @injectable()
@@ -94,5 +94,19 @@ export class FileService implements IFileService {
 
     public count(query: IQuery): Promise<number> {
         return Promise.resolve(0)
+    }
+
+    public async deleteFiles(files: DeleteFiles): Promise<void> {
+        try {
+            if (files.files_ids instanceof Array) {
+                for (const file of files.files_ids) {
+                    await this._fileRepository.delete(file)
+                }
+            }
+            return Promise.resolve()
+        } catch (err) {
+        this._logger.error(`Error: ${err}`)
+        return Promise.reject(err)
+    }
     }
 }

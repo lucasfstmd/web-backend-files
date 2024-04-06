@@ -32,6 +32,7 @@ export abstract class Identifier {
 
     // Tasks
     public static readonly PUBLISH_EVENT_BUS_TASK: any = Symbol.for('PublishEventBusTask')
+    public static readonly SUBSCRIBE_EVENT_BUS_TASK: any = Symbol.for('SubscribeEventBusTask')
 
 
     // Log

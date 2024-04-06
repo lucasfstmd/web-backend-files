@@ -15,8 +15,9 @@ export interface IEventBus extends IDisposable {
     publish(event: IntegrationEvent<IJSONSerializable>): Promise<boolean>
 
     subscribe(
-        event: IntegrationEvent<IJSONSerializable>,
-        handler: IIntegrationEventHandler<IntegrationEvent<IJSONSerializable>>
+        event: IntegrationEvent<any>,
+        handler: IIntegrationEventHandler<IntegrationEvent<any>>,
+        routingKey: string
     ): Promise<boolean>
 
     provideResource(name: string, listener: (...any) => any): Promise<boolean>

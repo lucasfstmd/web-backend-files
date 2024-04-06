@@ -24,6 +24,7 @@ import { IntegrationEventRepository } from '../infrastructure/repository/integra
 import { IIntegrationEventRepository } from '../application/port/integration.event.repository.interface'
 import { IntegrationEventRepoModel } from '../infrastructure/database/schema/integration.event.schema'
 import { PublishEventBusTask } from '../background/task/publish.event.bus.task'
+import { SubscribeEventBusTask } from '../background/task/subscribe.event.bus.task'
 
 class IoC {
     private readonly _container: Container
@@ -101,6 +102,9 @@ class IoC {
         this._container
             .bind<IBackgroundTask>(Identifier.PUBLISH_EVENT_BUS_TASK)
             .to(PublishEventBusTask).inRequestScope()
+        this._container
+            .bind<IBackgroundTask>(Identifier.SUBSCRIBE_EVENT_BUS_TASK)
+            .to(SubscribeEventBusTask).inRequestScope()
 
         // Log
         this._container.bind<ILogger>(Identifier.LOGGER).to(CustomLogger).inSingletonScope()
