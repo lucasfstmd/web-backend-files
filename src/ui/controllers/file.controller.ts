@@ -8,6 +8,7 @@ import HttpStatus from 'http-status-codes'
 import { unlinkSync } from 'fs'
 import { ApiExceptionManager } from '../exception/api.exception.manager'
 import { Query } from '../../infrastructure/repository/query/query'
+import { SendFile } from '../../application/domain/model/send.file'
 
 @controller('/v1/files')
 export class FileController {
@@ -39,14 +40,19 @@ export class FileController {
                 const objFiles = files[arq]
                 const uploadPromise = this._service.uploadFile(objFiles, directory_id)
                     .then((result) => {
-                        return `${result}`
+                        return result
                     })
                     .catch((err) => FileController.handlerError(res, err))
                 uploadPromises.push(uploadPromise)
             })
 
             const results = await Promise.all(uploadPromises)
-            return res.status(HttpStatus.OK).send(results)
+            const fileSend = new SendFile().fromJSON({
+                directory_id,
+                files: results
+            })
+            await this._service.sendFiles(fileSend)
+            return res.status(HttpStatus.OK).send(fileSend)
 
         } catch (err) {
             return FileController.handlerError(res, err)
@@ -89,7 +95,6 @@ export class FileController {
     public async getAll(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const result = await this._service.getAll(new Query())
-            console.log(result)
             return res.status(HttpStatus.OK).send(result)
         } catch (err) {
             return FileController.handlerError(res, err)

@@ -4,14 +4,19 @@ import { Identifier } from '../../di/identifiers'
 import { IFileRepository } from '../port/file.repository.interface'
 import { ILogger } from '../../utils/custom.logger'
 import { IQuery } from '../port/query.interface'
-import { ObjectId } from 'mongodb'
+import { SendFile } from '../domain/model/send.file'
+import { File } from '../domain/model/file'
+// import { FileSyncEvent } from '../integration-event/event/file.sync.event'
+import { IntegrationEventRepository } from '../../infrastructure/repository/integration.event.repository'
+import { FileSyncEvent } from '../integration-event/event/file.sync.event'
 
 
 @injectable()
 export class FileService implements IFileService {
 
     constructor(
-        @inject(Identifier.FILE_REPOSITORY) private readonly _repository: IFileRepository,
+        @inject(Identifier.FILE_REPOSITORY) private readonly _fileRepository: IFileRepository,
+        @inject(Identifier.INTEGRATION_EVENT_REPOSITORY) private readonly _integrationEventRepositoy: IntegrationEventRepository,
         @inject(Identifier.LOGGER) private readonly _logger: ILogger
     ) {
     }
@@ -22,7 +27,7 @@ export class FileService implements IFileService {
 
     public downloadFile(id: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            return this._repository.downloadFile(id)
+            return this._fileRepository.downloadFile(id)
                 .then((result) => {
                     resolve(result)
                 })
@@ -30,17 +35,24 @@ export class FileService implements IFileService {
         })
     }
 
-    public uploadFile(file: any, directory_id: string): Promise<ObjectId> {
-        return new Promise<ObjectId>((resolve, reject) => {
-            return this._repository.uploadFile(file, directory_id)
-                .then((res) => resolve(res))
-                .catch((err) => reject(err))
+    public uploadFile(file: any, directory_id: string): Promise<File> {
+        return new Promise<File>((resolve, reject) => {
+            this._fileRepository.uploadFile(file, directory_id)
+                .then((result) => {
+                    const files = new File().fromJSON({
+                        file_name: file.name,
+                        file_id: result
+                    })
+                    resolve(files)
+                }).catch(err => {
+                    reject(err)
+            })
         })
     }
 
     public findByDirectory(directory: string): Promise<Array<any>> {
         try {
-            const result = this._repository.findByDirectory(directory)
+            const result = this._fileRepository.findByDirectory(directory)
             return Promise.resolve(result)
         } catch (err) {
             this._logger.error(`Error: ${err}`)
@@ -50,7 +62,17 @@ export class FileService implements IFileService {
 
     public getAll(query: IQuery): Promise<Array<any>> {
         try {
-            const result = this._repository.find(query)
+            const result = this._fileRepository.find(query)
+            return Promise.resolve(result)
+        } catch (err) {
+            this._logger.error(`Error: ${err}`)
+            return Promise.reject(err)
+        }
+    }
+
+    public async sendFiles(sendFile: SendFile): Promise<any> {
+        try {
+            const result = await this._integrationEventRepositoy.publishEvent(new FileSyncEvent(new Date(), sendFile))
             return Promise.resolve(result)
         } catch (err) {
             this._logger.error(`Error: ${err}`)

@@ -3,12 +3,10 @@ export interface IConnectionFactory {
 }
 
 export interface IDBOptions {
-    sslValidate: boolean
+    tlsAllowInvalidCertificates: boolean
     tlsCAFile: any
     tlsCertificateKeyFile: any
     tlsCertificateFile: any
-    useNewUrlParser: boolean,
-    useUnifiedTopology: boolean
 }
 
 export interface IEventBusOptions {

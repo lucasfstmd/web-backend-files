@@ -22,6 +22,9 @@ export abstract class Default {
     public static readonly MONGODB_URI: string = 'mongodb+srv://SYSDBA:masterkey@cluster0.wivsc.mongodb.net/smtc'
     public static readonly MONGODB_URI_TEST: string = 'mongodb+srv://SYSDBA:masterkey@cluster0.wivsc.mongodb.net/test'
 
+    // RabbitMQ
+    public static readonly RABBITMQ_URI: string = 'amqp://guest:guest@127.0.0.1:5672'
+
     // Log
     public static readonly LOG_DIR: string = 'logs'
 

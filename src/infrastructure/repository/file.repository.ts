@@ -1,7 +1,6 @@
 import { IFileRepository } from '../../application/port/file.repository.interface'
 import { inject, injectable } from 'inversify'
 import { Identifier } from '../../di/identifiers'
-import { Db, GridFSBucket, ObjectId } from 'mongodb'
 import { ObjectValidation } from '../../application/domain/validator/object.validation'
 import { join } from 'path'
 import {
@@ -15,6 +14,7 @@ import {
 import { Strings } from '../../utils/Strings'
 import { IQuery } from '../../application/port/query.interface'
 import { IConnectionDB } from '../port/connection.db.interface'
+import { GridFSBucket, ObjectId } from 'mongodb'
 
 @injectable()
 export class FileRepository implements IFileRepository {
@@ -34,7 +34,7 @@ export class FileRepository implements IFileRepository {
     }
 
     private _initializeBucket(): GridFSBucket {
-        return new GridFSBucket(this._connection.db as Db, {
+        return new GridFSBucket(this._connection.connection.db, {
             bucketName: ''
         })
     }
@@ -53,7 +53,7 @@ export class FileRepository implements IFileRepository {
                 const streamGridFS = bucket.openUploadStream(fileName, {
                     metadata: {
                         mimetype: file.mimetype,
-                        directory: new ObjectId(directory_id)
+                        directory: directory_id
                     }
                 })
 

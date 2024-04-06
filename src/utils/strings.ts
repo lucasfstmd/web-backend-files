@@ -53,6 +53,12 @@ export class Strings {
                 MESSAGE: 'Identifier: {0}, is not in valid format.',
                 DESCRIPTION: 'The identifier must follow the format ddd, where d is a digit between [0-9].'
             }
+        },
+        EVENT_BUS: {
+            DEFAULT_MESSAGE: 'An event bus error has occurred.',
+            NO_CONNECTION_OPEN: 'No connection open!',
+            RPC_TIMEOUT: 'rpc timed out',
+            UNEXPECTED_EVENT_NAME: 'Unexpected event name: {0}!'
         }
     }
 }

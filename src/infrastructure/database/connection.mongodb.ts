@@ -4,7 +4,7 @@ import {Identifier} from '../../di/identifiers'
 import {IConnectionDB} from '../port/connection.db.interface'
 import {ILogger} from '../../utils/custom.logger'
 import {EventEmitter} from 'events'
-import { Db, MongoClient } from 'mongodb'
+import { Connection } from 'mongoose'
 
 /**
  * Implementation of the interface that provides connection with MongoDB.
@@ -15,9 +15,9 @@ import { Db, MongoClient } from 'mongodb'
  */
 @injectable()
 export class ConnectionMongodb implements IConnectionDB {
-    private _connection?: MongoClient
+    public _connection?: Connection
     private _eventConnection: EventEmitter
-    public db: Db | undefined
+
 
     constructor(
         @inject(Identifier.MONGODB_CONNECTION_FACTORY) private readonly _connectionFactory: IConnectionFactory,
@@ -26,7 +26,8 @@ export class ConnectionMongodb implements IConnectionDB {
         this._eventConnection = new EventEmitter()
     }
 
-    get connection(): MongoClient | undefined {
+
+    get connection(): Connection | undefined {
         return this._connection
     }
 
@@ -48,10 +49,9 @@ export class ConnectionMongodb implements IConnectionDB {
     public async tryConnect(uri: string, options?: IDBOptions): Promise<void> {
         const _this = this
         await this._connectionFactory.createConnection(uri, options)
-            .then((connection: MongoClient) => {
+            .then((connection: Connection) => {
                 this._connection = connection
                 this.connectionStatusListener(this._connection)
-                this.db = connection.db()
                 this._eventConnection.emit('connected')
                 this._logger.info('Connection established with MongoDB...')
             })
@@ -71,7 +71,7 @@ export class ConnectionMongodb implements IConnectionDB {
      *
      * @param connection
      */
-    private connectionStatusListener(connection: MongoClient | undefined): void {
+    private connectionStatusListener(connection: Connection | undefined): void {
         if (!connection) {
             this._connection = undefined
             this._eventConnection.emit('disconnected')
@@ -98,7 +98,6 @@ export class ConnectionMongodb implements IConnectionDB {
     public async dispose(): Promise<void> {
         if (this._connection) await this._connection.close()
         this._connection = undefined
-        this.db = undefined
     }
 
 }
